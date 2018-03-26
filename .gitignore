@@ -12,3 +12,7 @@ target/*
 *.iri
 *.jar
 src/main/ixi/
+.vagrant
+db
+mainnet.log
+
