@@ -1,15 +1,5 @@
 package com.iota.iri;
-import com.iota.iri.controllers.MilestoneViewModel;
-import com.iota.iri.controllers.StateDiffViewModel;
-import com.iota.iri.hash.Curl;
-import com.iota.iri.hash.ISS;
-import com.iota.iri.hash.Sponge;
-import com.iota.iri.hash.SpongeFactory;
 import com.iota.iri.model.Hash;
-import com.iota.iri.controllers.TransactionViewModel;
-import com.iota.iri.storage.Tangle;
-import com.iota.iri.utils.Converter;
-import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +7,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
@@ -30,7 +22,7 @@ public class Snapshot {
     public static int SNAPSHOT_INDEX = 2;
     public static int SPENT_ADDRESSES_INDEX = 3;
 
-    public static final Map<Hash, Long> initialState = new HashMap<>();
+    public static final Map<Hash, String> initialState = new HashMap<Hash, String>();
     public static final Snapshot initialSnapshot;
     public final ReadWriteLock rwlock = new ReentrantReadWriteLock();
 
@@ -51,7 +43,7 @@ public class Snapshot {
                 {
                     String key = parts[0];
                     String value = parts[1];
-                    initialState.put(new Hash(key), Long.valueOf(value));
+                    initialState.put(new Hash(key),value);
                 }
             }
         } catch (IOException e) {
@@ -60,11 +52,11 @@ public class Snapshot {
         }
 
         initialSnapshot = new Snapshot(initialState, 0);
-        long stateValue = initialState.values().stream().reduce(Math::addExact).orElse(Long.MAX_VALUE);
+        /*long stateValue = initialState.values().stream().reduce(Math::addExact).orElse(Long.MAX_VALUE);
         if(stateValue != TransactionViewModel.SUPPLY) {
             log.error("Transaction resolves to incorrect ledger balance: {}", TransactionViewModel.SUPPLY - stateValue);
             System.exit(-1);
-        }
+        }*/
 
         if(!isConsistent(initialState)) {
             System.out.println("Initial Snapshot inconsistent.");
@@ -72,7 +64,7 @@ public class Snapshot {
         }
     }
 
-    protected final Map<Hash, Long> state;
+    protected final Map<Hash, String> state;
     private int index;
 
     public int index() {
@@ -83,7 +75,7 @@ public class Snapshot {
         return i;
     }
 
-    private Snapshot(Map<Hash, Long> initialState, int index) {
+    private Snapshot(Map<Hash, String> initialState, int index) {
         state = new HashMap<>(initialState);
         this.index = index;
     }
@@ -92,28 +84,28 @@ public class Snapshot {
         return new Snapshot(state, index);
     }
 
-    public Long getBalance(Hash hash) {
-        Long l;
+    public String getBalance(Hash hash) {
+        String l;
         rwlock.readLock().lock();
         l = state.get(hash);
         rwlock.readLock().unlock();
         return l;
     }
 
-    public Map<Hash, Long> patchedDiff(Map<Hash, Long> diff) {
-        Map<Hash, Long> patch;
+    public Map<Hash, String> patchedDiff(Map<Hash, String> diff) {
+        Map<Hash, String> patch;
         rwlock.readLock().lock();
         patch = diff.entrySet().stream().map(hashLongEntry ->
-            new HashMap.SimpleEntry<>(hashLongEntry.getKey(), state.getOrDefault(hashLongEntry.getKey(), 0L) + hashLongEntry.getValue())
+            new HashMap.SimpleEntry<>(hashLongEntry.getKey(), state.getOrDefault(hashLongEntry.getKey(), "0") + hashLongEntry.getValue())
         ).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         rwlock.readLock().unlock();
         return patch;
     }
 
-    void apply(Map<Hash, Long> patch, int newIndex) {
-        if (!patch.entrySet().stream().map(Map.Entry::getValue).reduce(Math::addExact).orElse(0L).equals(0L)) {
+    void apply(Map<Hash, String> patch, int newIndex) {
+        /*if (!patch.entrySet().stream().map(Map.Entry::getValue)) {
             throw new RuntimeException("Diff is not consistent.");
-        }
+        }*/
         rwlock.writeLock().lock();
         patch.entrySet().stream().forEach(hashLongEntry -> {
             if (state.computeIfPresent(hashLongEntry.getKey(), (hash, aLong) -> hashLongEntry.getValue() + aLong) == null) {
@@ -124,12 +116,12 @@ public class Snapshot {
         rwlock.writeLock().unlock();
     }
 
-    public static boolean isConsistent(Map<Hash, Long> state) {
-        final Iterator<Map.Entry<Hash, Long>> stateIterator = state.entrySet().iterator();
-        while (stateIterator.hasNext()) {
+    public static boolean isConsistent(Map<Hash, String> state) {
+        final Iterator<Map.Entry<Hash, String>> stateIterator = state.entrySet().iterator();
+        //while (stateIterator.hasNext()) {
 
-            final Map.Entry<Hash, Long> entry = stateIterator.next();
-            if (entry.getValue() <= 0) {
+          //  final Map.Entry<Hash, String> entry = stateIterator.next();
+            /*if (entry.getValue() <= 0) {
 
                 if (entry.getValue() < 0) {
                     log.info("Skipping negative value for address: " + entry.getKey() + ": " + entry.getValue());
@@ -146,7 +138,7 @@ public class Snapshot {
                  * + "\"), " + entry.getValue() + "L);"); }
                  */
             ////////////
-        }
+        //}
         return true;
     }
 }

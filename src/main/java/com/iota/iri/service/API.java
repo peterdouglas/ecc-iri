@@ -1,51 +1,21 @@
 package com.iota.iri.service;
 
-import static io.undertow.Handlers.path;
-
-import java.io.*;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import com.iota.iri.*;
-import com.iota.iri.controllers.*;
-import com.iota.iri.network.*;
-import com.iota.iri.service.dto.*;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xnio.channels.StreamSinkChannel;
-import org.xnio.streams.ChannelInputStream;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.iota.iri.*;
 import com.iota.iri.conf.Configuration;
 import com.iota.iri.conf.Configuration.DefaultConfSettings;
+import com.iota.iri.controllers.AddressViewModel;
+import com.iota.iri.controllers.BundleViewModel;
+import com.iota.iri.controllers.TagViewModel;
+import com.iota.iri.controllers.TransactionViewModel;
 import com.iota.iri.hash.Curl;
 import com.iota.iri.hash.PearlDiver;
 import com.iota.iri.model.Hash;
+import com.iota.iri.network.Neighbor;
+import com.iota.iri.service.dto.*;
 import com.iota.iri.utils.Converter;
 import com.iota.iri.utils.MapIdentityManager;
-
 import io.undertow.Undertow;
 import io.undertow.security.api.AuthenticationMechanism;
 import io.undertow.security.api.AuthenticationMode;
@@ -57,12 +27,29 @@ import io.undertow.security.idm.IdentityManager;
 import io.undertow.security.impl.BasicAuthenticationMechanism;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
-import io.undertow.util.HeaderMap;
-import io.undertow.util.Headers;
-import io.undertow.util.HttpString;
-import io.undertow.util.Methods;
-import io.undertow.util.MimeMappings;
-import io.undertow.util.StatusCodes;
+import io.undertow.util.*;
+import org.apache.commons.io.IOUtils;
+import org.bouncycastle.math.ec.ECPoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xnio.channels.StreamSinkChannel;
+import org.xnio.streams.ChannelInputStream;
+
+import java.io.*;
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static io.undertow.Handlers.path;
 
 @SuppressWarnings("unchecked")
 public class API {
@@ -82,7 +69,7 @@ public class API {
     private Pattern trytesPattern = Pattern.compile("[9A-Z]*");
 
     private final static int HASH_SIZE = 81;
-    private final static int TRYTES_SIZE = 2673;
+    private final static int TRYTES_SIZE = 10287;
 
     private final static long MAX_TIMESTAMP_VALUE = (3^27 - 1) / 2;
 
@@ -375,7 +362,7 @@ public class API {
         for (Hash hash : hashes) {
             final TransactionViewModel tx = TransactionViewModel.fromHash(instance.tangle, hash);
             //spend
-            if (tx.value() < 0) {
+            if (tx.getRangeProof().startsWith("999999999")) {
                 //confirmed
                 if (tx.snapshotIndex() != 0) {
                     return true;
@@ -620,7 +607,7 @@ public class API {
         throw new RuntimeException("inconsistent tips pair selected");
     }
 
-    private synchronized AbstractResponse getTipsStatement() throws Exception {
+    private synchronized AbstractResponse getTipsStatement()  {
         return GetTipsResponse.create(instance.tipsViewModel.getTips().stream().map(Hash::toString).collect(Collectors.toList()));
     }
 
@@ -874,13 +861,13 @@ public class API {
         }
         try {
             for (final Hash address : addresses) {
-                Long value = instance.milestone.latestSnapshot.getBalance(address);
+                String value = instance.milestone.latestSnapshot.getBalance(address);
                 if (value == null) value = 0L;
                 balances.put(address, value);
             }
 
             final Set<Hash> visitedHashes;
-            final Map<Hash, Long> diff;
+            final Map<Hash, ECPoint> diff;
 
             visitedHashes = new HashSet<>();
             diff = new HashMap<>();

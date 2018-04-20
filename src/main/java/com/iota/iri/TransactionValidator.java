@@ -4,6 +4,7 @@ import com.iota.iri.controllers.TipsViewModel;
 import com.iota.iri.hash.Curl;
 import com.iota.iri.hash.Sponge;
 import com.iota.iri.hash.SpongeFactory;
+import com.iota.iri.model.Commitment;
 import com.iota.iri.network.TransactionRequester;
 import com.iota.iri.controllers.TransactionViewModel;
 import com.iota.iri.model.Hash;
@@ -88,18 +89,18 @@ public class TransactionValidator {
         if(hasInvalidTimestamp(transactionViewModel)) {
             throw new StaleTimestampException("Invalid transaction timestamp.");
         }
-        for (int i = VALUE_TRINARY_OFFSET + VALUE_USABLE_TRINARY_SIZE; i < VALUE_TRINARY_OFFSET + VALUE_TRINARY_SIZE; i++) {
+        /*for (int i = VALUE_TRINARY_OFFSET + VALUE_USABLE_TRINARY_SIZE; i < VALUE_TRINARY_OFFSET + VALUE_TRINARY_SIZE; i++) {
             if (transactionViewModel.trits()[i] != 0) {
                 throw new RuntimeException("Invalid transaction value");
             }
-        }
+        }*/
 
         int weightMagnitude = transactionViewModel.weightMagnitude;
         if(weightMagnitude < minWeightMagnitude) {
             throw new RuntimeException("Invalid transaction hash");
         }
 
-        if (transactionViewModel.value() != 0 && transactionViewModel.getAddressHash().trits()[Curl.HASH_LENGTH - 1] != 0) {
+        if (!transactionViewModel.value().equals(Commitment.zero) && transactionViewModel.getAddressHash().trits()[Curl.HASH_LENGTH - 1] != 0) {
             throw new RuntimeException("Invalid transaction address");
         }
     }

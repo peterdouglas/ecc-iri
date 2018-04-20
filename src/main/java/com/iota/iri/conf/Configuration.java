@@ -15,7 +15,7 @@ import java.util.prefs.Preferences;
  * All those settings are modificable at runtime,
  * but for most of them the node needs to be restarted.
  */
-public class Configuration {
+public class    Configuration {
     private Ini ini;
     private Preferences prefs;
 

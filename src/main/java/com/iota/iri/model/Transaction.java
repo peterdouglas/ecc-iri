@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
  * Created by paul on 3/2/17 for iri.
  */
 public class Transaction implements Persistable {
-    public static final int SIZE = 1604;
+    public static final int SIZE = 10287;
 
     public byte[] bytes;
 
@@ -19,7 +19,9 @@ public class Transaction implements Persistable {
     public Hash trunk;
     public Hash branch;
     public Hash obsoleteTag;
-    public long value;
+    public Commitment value;
+    public String rangeProof;
+    public String blinding;
     public long currentIndex;
     public long lastIndex;
     public long timestamp;
@@ -66,7 +68,9 @@ public class Transaction implements Persistable {
         buffer.put(trunk.bytes());
         buffer.put(branch.bytes());
         buffer.put(obsoleteTag.bytes());
-        buffer.put(Serializer.serialize(value));
+        buffer.put(value.bytes());
+        buffer.put(blinding.getBytes());
+        buffer.put(rangeProof.getBytes());
         buffer.put(Serializer.serialize(currentIndex));
         buffer.put(Serializer.serialize(lastIndex));
         buffer.put(Serializer.serialize(timestamp));
@@ -101,8 +105,16 @@ public class Transaction implements Persistable {
             i += Hash.SIZE_IN_BYTES;
             obsoleteTag = new Hash(bytes, i, Hash.SIZE_IN_BYTES);
             i += Hash.SIZE_IN_BYTES;
-            value = Serializer.getLong(bytes, i);
-            i += Long.BYTES;
+            value = new Commitment(bytes, i, 49);
+            i += Hash.SIZE_IN_BYTES;
+            byte[] blindByte = new byte[363];
+            System.arraycopy(bytes, i, blindByte, 0, 363);
+            blinding = new String(blindByte);
+            i += 363;
+            byte[] rangeByte = new byte[2456];
+            System.arraycopy(bytes, i, rangeByte, 0, 2456);
+            rangeProof = new String(rangeByte);
+            i += 2456;
             currentIndex = Serializer.getLong(bytes, i);
             i += Long.BYTES;
             lastIndex = Serializer.getLong(bytes, i);

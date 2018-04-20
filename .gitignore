@@ -15,4 +15,5 @@ src/main/ixi/
 .vagrant
 db
 mainnet.log
-
+testnetdb.log
+testnetdb
