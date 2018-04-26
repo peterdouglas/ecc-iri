@@ -57,9 +57,9 @@ public class TransactionValidator {
             MIN_WEIGHT_MAGNITUDE = MAINNET_MWM;
         }
         //lowest allowed MWM encoded in 46 bytes.
-        if (MIN_WEIGHT_MAGNITUDE<13){
+        /*if (MIN_WEIGHT_MAGNITUDE<13){
             MIN_WEIGHT_MAGNITUDE = 13;
-        }
+        }*/
 
         newSolidThread = new Thread(spawnSolidTransactionsPropagation(), "Solid TX cascader");
         newSolidThread.start();
@@ -83,24 +83,24 @@ public class TransactionValidator {
                 || transactionViewModel.getAttachmentTimestamp() > System.currentTimeMillis() + MAX_TIMESTAMP_FUTURE_MS;
     }
 
-    public static void runValidation(TransactionViewModel transactionViewModel, final int minWeightMagnitude) {
+    public static void runValidation(TransactionViewModel transactionViewModel, final int minWeightMagnitude)  {
         transactionViewModel.setMetadata();
         transactionViewModel.setAttachmentData();
         if(hasInvalidTimestamp(transactionViewModel)) {
             throw new StaleTimestampException("Invalid transaction timestamp.");
         }
-        /*for (int i = VALUE_TRINARY_OFFSET + VALUE_USABLE_TRINARY_SIZE; i < VALUE_TRINARY_OFFSET + VALUE_TRINARY_SIZE; i++) {
+        /*for (int i = VECTORP_TRINARY_OFFSET + VALUE_USABLE_TRINARY_SIZE; i < VECTORP_TRINARY_OFFSET + VECTORP_TRINARY_SIZE; i++) {
             if (transactionViewModel.trits()[i] != 0) {
                 throw new RuntimeException("Invalid transaction value");
             }
         }*/
 
         int weightMagnitude = transactionViewModel.weightMagnitude;
-        if(weightMagnitude < minWeightMagnitude) {
+        /*if(weightMagnitude < minWeightMagnitude) {
             throw new RuntimeException("Invalid transaction hash");
-        }
+        }*/
 
-        if (!transactionViewModel.value().equals(Commitment.zero) && transactionViewModel.getAddressHash().trits()[Curl.HASH_LENGTH - 1] != 0) {
+        if (!transactionViewModel.vectorP().equals(Commitment.zero) && transactionViewModel.getAddressHash().trits()[Curl.HASH_LENGTH - 1] != 0) {
             throw new RuntimeException("Invalid transaction address");
         }
     }
@@ -183,6 +183,7 @@ public class TransactionValidator {
                     try {
                         Hash hash = cascadeIterator.next();
                         TransactionViewModel transaction = TransactionViewModel.fromHash(tangle, hash);
+
                         Set<Hash> approvers = transaction.getApprovers(tangle).getHashes();
                         for(Hash h: approvers) {
                             TransactionViewModel tx = TransactionViewModel.fromHash(tangle, h);
@@ -247,6 +248,7 @@ public class TransactionValidator {
                 solid = false;
             }
             if(solid) {
+                System.out.println("Quick set solid");
                 transactionViewModel.updateSolid(true);
                 transactionViewModel.updateHeights(tangle);
                 return true;

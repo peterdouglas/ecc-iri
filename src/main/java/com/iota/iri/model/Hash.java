@@ -35,7 +35,7 @@ public class Hash implements Serializable, Indexable {
     public Hash(final int[] trits, final int offset) {
         this.trits = new int[SIZE_IN_TRITS];
         System.arraycopy(trits, offset, this.trits, 0, SIZE_IN_TRITS);
-        //this(Converter.bytes(trits, offset, trits.length));
+        //this(Converter.bytes(trits, offset, trits.length), 0, SIZE_IN_BYTES);
     }
 
     public Hash(final int[] trits) {

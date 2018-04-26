@@ -1,15 +1,16 @@
 package com.iota.iri.controllers;
 
 import com.iota.iri.Milestone;
-import com.iota.iri.conf.Configuration;
 import com.iota.iri.model.Hash;
 import com.iota.iri.storage.Tangle;
 import com.iota.iri.storage.rocksDB.RocksDBPersistenceProvider;
-import com.iota.iri.storage.rocksDB.RocksDBPersistenceProviderTest;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by paul on 4/11/17.
@@ -18,15 +19,15 @@ public class MilestoneViewModelTest {
     final TemporaryFolder dbFolder = new TemporaryFolder();
     final TemporaryFolder logFolder = new TemporaryFolder();
     private static Tangle tangle = new Tangle();
-    int index = 30;
+    int index = 33870;
 
     @Before
     public void setUpTest() throws Exception {
         dbFolder.create();
         logFolder.create();
         RocksDBPersistenceProvider rocksDBPersistenceProvider;
-        rocksDBPersistenceProvider = new RocksDBPersistenceProvider(dbFolder.getRoot().getAbsolutePath(),
-                logFolder.getRoot().getAbsolutePath(),1000);
+        rocksDBPersistenceProvider = new RocksDBPersistenceProvider("./testnetdb",
+                "testnetdb-log",1000);
         tangle.addPersistenceProvider(rocksDBPersistenceProvider);
         tangle.init();
     }
@@ -92,8 +93,8 @@ public class MilestoneViewModelTest {
 
     @Test
     public void latest() throws Exception {
-        int top = 100;
-        Hash milestoneHash = new Hash("ZBCDEFGHIJKLMNOPQRSTUVWXYZ9ABCDEFGHIJKLMNOPQRSTUVWXYZ9ABCDEFGHIJKLMNOPQRSTUV99999");
+        int top = 3380;
+        Hash milestoneHash = new Hash("ZCCDEFGHIJKLMNOPQRSTUVWXYZ9ABCDEFGHIJKLMNOPQRSTUVWXYZ9ABCDEFGHIJKLMNOPQRSTUV99999");
         MilestoneViewModel milestoneViewModel = new MilestoneViewModel(top, milestoneHash);
         milestoneViewModel.store(tangle);
         assertTrue(top == MilestoneViewModel.latest(tangle).index());

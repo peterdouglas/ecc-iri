@@ -14,7 +14,8 @@ import java.util.Map;
 public class SnapshotTest {
     @Test
     public void getState() throws Exception {
-        //Assert.assertTrue(latestSnapshot.getState().equals(Snapshot.initialState));
+        Snapshot latestSnapshot = Snapshot.initialSnapshot.clone();
+        Assert.assertTrue(latestSnapshot.state.equals(Snapshot.initialState));
     }
 
     @Test
@@ -27,8 +28,9 @@ public class SnapshotTest {
         Map.Entry<Hash, String> firstOne = Snapshot.initialState.entrySet().iterator().next();
         Hash someHash = new Hash("PSRQPWWIECDGDDZXHGJNMEVJNSVOSMECPPVRPEVRZFVIZYNNXZNTOTJOZNGCZNQVSPXBXTYUJUOXYASLS");
         Map<Hash, String> diff = new HashMap<>();
-        //diff.put(firstOne.getKey(), -firstOne.getValue());
+        diff.put(firstOne.getKey(), "99999");
         diff.put(someHash, firstOne.getValue());
+
         Assert.assertNotEquals(0, diff.size());
         Assert.assertTrue("The ledger should be consistent", Snapshot.isConsistent(Snapshot.initialSnapshot.patchedDiff(diff)));
     }

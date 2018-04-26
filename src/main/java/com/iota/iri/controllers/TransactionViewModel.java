@@ -6,24 +6,25 @@ import com.iota.iri.storage.Persistable;
 import com.iota.iri.storage.Tangle;
 import com.iota.iri.utils.Converter;
 import com.iota.iri.utils.Pair;
-import org.bouncycastle.math.ec.ECPoint;
-
+import org.spongycastle.math.ec.ECPoint;
 import java.util.*;
+
+import static com.iota.iri.model.Commitment.zero;
 
 public class TransactionViewModel {
 
     private final com.iota.iri.model.Transaction transaction;
 
-    public static final int SIZE = 1604;
+    public static final int SIZE = 6182;
     private static final int TAG_SIZE = 27;
 
     public static final long SUPPLY = 2779530283277761L; // = (3^33 - 1) / 2
 
     public static final int SIGNATURE_MESSAGE_FRAGMENT_TRINARY_OFFSET = 0, SIGNATURE_MESSAGE_FRAGMENT_TRINARY_SIZE = 6561;
     public static final int ADDRESS_TRINARY_OFFSET = SIGNATURE_MESSAGE_FRAGMENT_TRINARY_OFFSET + SIGNATURE_MESSAGE_FRAGMENT_TRINARY_SIZE, ADDRESS_TRINARY_SIZE = 243;
-    public static final int VALUE_TRINARY_OFFSET = ADDRESS_TRINARY_OFFSET + ADDRESS_TRINARY_SIZE, VALUE_TRINARY_SIZE = 243, VALUE_USABLE_TRINARY_SIZE = 33;
-    public static final int BLINDING_TRINARY_OFFSET = VALUE_TRINARY_OFFSET + VALUE_TRINARY_SIZE, BLINDING_TRINARY_SIZE = 1830;
-    public static final int RANGEPROOF_TRINARY_OFFSET = BLINDING_TRINARY_OFFSET + BLINDING_TRINARY_SIZE, RANGEPROOF_TRINARY_SIZE = 20850;
+    public static final int VECTORP_TRINARY_OFFSET = ADDRESS_TRINARY_OFFSET + ADDRESS_TRINARY_SIZE, VECTORP_TRINARY_SIZE = 270;
+    public static final int VALUE_TRINARY_OFFSET = VECTORP_TRINARY_OFFSET + VECTORP_TRINARY_SIZE, VALUE_TRINARY_SIZE = 1848;
+    public static final int RANGEPROOF_TRINARY_OFFSET = VALUE_TRINARY_OFFSET + VALUE_TRINARY_SIZE, RANGEPROOF_TRINARY_SIZE = 20850;
     public static final int OBSOLETE_TAG_TRINARY_OFFSET = RANGEPROOF_TRINARY_OFFSET + RANGEPROOF_TRINARY_SIZE, OBSOLETE_TAG_TRINARY_SIZE = 81;
     public static final int TIMESTAMP_TRINARY_OFFSET = OBSOLETE_TAG_TRINARY_OFFSET + OBSOLETE_TAG_TRINARY_SIZE, TIMESTAMP_TRINARY_SIZE = 27;
     public static final int CURRENT_INDEX_TRINARY_OFFSET = TIMESTAMP_TRINARY_OFFSET + TIMESTAMP_TRINARY_SIZE, CURRENT_INDEX_TRINARY_SIZE = 27;
@@ -40,7 +41,7 @@ public class TransactionViewModel {
 
     public static final int TRINARY_SIZE = NONCE_TRINARY_OFFSET + NONCE_TRINARY_SIZE;
 
-    public static final int ESSENCE_TRINARY_OFFSET = ADDRESS_TRINARY_OFFSET, ESSENCE_TRINARY_SIZE = ADDRESS_TRINARY_SIZE + VALUE_TRINARY_SIZE + OBSOLETE_TAG_TRINARY_SIZE + TIMESTAMP_TRINARY_SIZE + CURRENT_INDEX_TRINARY_SIZE + LAST_INDEX_TRINARY_SIZE;
+    public static final int ESSENCE_TRINARY_OFFSET = ADDRESS_TRINARY_OFFSET, ESSENCE_TRINARY_SIZE = ADDRESS_TRINARY_SIZE; //+ OBSOLETE_TAG_TRINARY_SIZE + TIMESTAMP_TRINARY_SIZE + 2*CURRENT_INDEX_TRINARY_SIZE + LAST_INDEX_TRINARY_SIZE;
 
 
     private AddressViewModel address;
@@ -310,8 +311,12 @@ public class TransactionViewModel {
     }
 
 
-    public ECPoint value() {
-        return transaction.value.commitment;
+    public ECPoint vectorP() {
+        return transaction.vectorP.commitment;
+    }
+
+    public String value() {
+        return transaction.value;
     }
 
     public String getRangeProof() {
@@ -356,10 +361,15 @@ public class TransactionViewModel {
         transaction.attachmentTimestampUpperBound = Converter.longValue(trits(), ATTACHMENT_TIMESTAMP_UPPER_BOUND_TRINARY_OFFSET, ATTACHMENT_TIMESTAMP_UPPER_BOUND_TRINARY_SIZE);
 
     }
-    public void setMetadata() {
-        byte[] commBytes = new byte[VALUE_TRINARY_SIZE];
-        Converter.bytes(trits(), VALUE_TRINARY_OFFSET, commBytes, 0, VALUE_USABLE_TRINARY_SIZE);
-        transaction.value = new Commitment(commBytes);
+    public void setMetadata()  {
+        /*byte[] address = new byte[Hash.SIZE_IN_BYTES];
+        Converter.bytes(trits(), ADDRESS_TRINARY_OFFSET, address, 0, ADDRESS_TRINARY_SIZE);
+        transaction.address = new Hash(address);*/
+        byte[] commBytes = new byte[55];
+        Converter.bytes(trits(), VECTORP_TRINARY_OFFSET, commBytes, 0, VECTORP_TRINARY_SIZE);
+        transaction.vectorP = new Commitment(commBytes);
+        transaction.value = Converter.trytes(trits(), VALUE_TRINARY_OFFSET, VALUE_TRINARY_SIZE);
+        transaction.rangeProof = Converter.trytes(trits(), RANGEPROOF_TRINARY_OFFSET, RANGEPROOF_TRINARY_SIZE);
         transaction.timestamp = Converter.longValue(trits(), TIMESTAMP_TRINARY_OFFSET, TIMESTAMP_TRINARY_SIZE);
         //if (transaction.timestamp > 1262304000000L ) transaction.timestamp /= 1000L;  // if > 01.01.2010 in milliseconds
         transaction.currentIndex = Converter.longValue(trits(), CURRENT_INDEX_TRINARY_OFFSET, CURRENT_INDEX_TRINARY_SIZE);

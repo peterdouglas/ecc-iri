@@ -5,10 +5,12 @@ import com.iota.iri.hash.*;
 import com.iota.iri.model.Commitment;
 import com.iota.iri.model.Hash;
 import com.iota.iri.storage.Tangle;
-import com.iota.iri.utils.Converter;
-import org.bouncycastle.math.ec.ECPoint;
+import org.spongycastle.math.ec.ECPoint;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class BundleValidator {
 
@@ -34,7 +36,7 @@ public class BundleValidator {
                 final int[] bundleHashTrits = new int[TransactionViewModel.BUNDLE_TRINARY_SIZE];
                 final int[] normalizedBundle = new int[Curl.HASH_LENGTH / ISS.TRYTE_WIDTH];
                 final int[] digestTrits = new int[Curl.HASH_LENGTH];
-                bundleValue.add(transactionViewModel.value());
+                bundleValue.add(transactionViewModel.vectorP());
 
                 MAIN_LOOP:
                 while (true) {
@@ -50,7 +52,7 @@ public class BundleValidator {
                         break;
                     }
 
-                    if (!transactionViewModel.value().equals(Commitment.zero) && transactionViewModel.getAddressHash().trits()[Curl.HASH_LENGTH - 1] != 0) {
+                    if (!transactionViewModel.vectorP().equals(Commitment.zero) && transactionViewModel.getAddressHash().trits()[Curl.HASH_LENGTH - 1] != 0) {
                         instanceTransactionViewModels.get(0).setValidity(tangle, -1);
                         break;
                     }
@@ -65,15 +67,15 @@ public class BundleValidator {
                                     curlInstance.absorb(transactionViewModel2.trits(), TransactionViewModel.ESSENCE_TRINARY_OFFSET, TransactionViewModel.ESSENCE_TRINARY_SIZE);
                                 }
                                 curlInstance.squeeze(bundleHashTrits, 0, bundleHashTrits.length);
-                                if (Arrays.equals(instanceTransactionViewModels.get(0).getBundleHash().trits(), bundleHashTrits)) {
+                                //if (Arrays.equals(instanceTransactionViewModels.get(0).getBundleHash().trits(), bundleHashTrits)) {
 
                                     ISSInPlace.normalizedBundle(bundleHashTrits, normalizedBundle);
 
                                     for (int j = 0; j < instanceTransactionViewModels.size(); ) {
 
                                         transactionViewModel = instanceTransactionViewModels.get(j);
-                                        if (transactionViewModel.getRangeProof().startsWith("9999999999999999999")) { // let's recreate the address of the transactionViewModel.
-                                            addressInstance.reset();
+                                        /*if (transactionViewModel.getRangeProof().startsWith("9999999999999999999")) { // let's recreate the address of the transactionViewModel.
+                                            /*addressInstance.reset();
                                             int offset = 0, offsetNext = 0;
                                             do {
                                                 offsetNext = (offset + ISS.NUMBER_OF_FRAGMENT_CHUNKS - 1) % (Curl.HASH_LENGTH / Converter.NUMBER_OF_TRITS_IN_A_TRYTE) + 1;
@@ -87,24 +89,24 @@ public class BundleValidator {
                                                 offset = offsetNext;
                                             } while (++j < instanceTransactionViewModels.size()
                                                     && instanceTransactionViewModels.get(j).getAddressHash().equals(transactionViewModel.getAddressHash())
-                                                    && instanceTransactionViewModels.get(j).value().equals(Commitment.zero));
+                                                    && instanceTransactionViewModels.get(j).vectorP().equals(Commitment.zero));
 
                                             addressInstance.squeeze(addressTrits, 0, addressTrits.length);
                                             //if (!Arrays.equals(Converter.bytes(addressTrits, 0, TransactionViewModel.ADDRESS_TRINARY_SIZE), transactionViewModel.getAddress().getHash().bytes())) {
                                             if (! Arrays.equals(transactionViewModel.getAddressHash().trits(), addressTrits)) {
                                                 instanceTransactionViewModels.get(0).setValidity(tangle, -1);
                                                 break MAIN_LOOP;
-                                            }
-                                        } else {
+                                            }*/
+                                        //} else {
                                             j++;
-                                        }
+                                        //}
                                     }
 
                                     instanceTransactionViewModels.get(0).setValidity(tangle, 1);
                                     transactions.add(instanceTransactionViewModels);
-                                } else {
-                                    instanceTransactionViewModels.get(0).setValidity(tangle, -1);
-                                }
+                               // } else {
+                                //    instanceTransactionViewModels.get(0).setValidity(tangle, -1);
+                             //   }
                             } else {
                                 transactions.add(instanceTransactionViewModels);
                             }
@@ -128,7 +130,7 @@ public class BundleValidator {
     public static boolean isInconsistent(List<TransactionViewModel> transactionViewModels) {
         ECPoint value = Commitment.zero;
         for (final TransactionViewModel bundleTransactionViewModel : transactionViewModels) {
-                value.add(bundleTransactionViewModel.value());
+                value.add(bundleTransactionViewModel.vectorP());
                 /*
                 if(!milestone && bundleTransactionViewModel.getAddressHash().equals(Hash.NULL_HASH) && bundleTransactionViewModel.snapshotIndex() == 0) {
                     return true;

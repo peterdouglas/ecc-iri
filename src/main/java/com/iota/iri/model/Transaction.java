@@ -2,6 +2,7 @@ package com.iota.iri.model;
 
 import com.iota.iri.controllers.TransactionViewModel;
 import com.iota.iri.storage.Persistable;
+import com.iota.iri.utils.Converter;
 import com.iota.iri.utils.Serializer;
 
 import java.nio.ByteBuffer;
@@ -10,7 +11,7 @@ import java.nio.ByteBuffer;
  * Created by paul on 3/2/17 for iri.
  */
 public class Transaction implements Persistable {
-    public static final int SIZE = 10287;
+    public static final int SIZE = 6182;
 
     public byte[] bytes;
 
@@ -19,12 +20,13 @@ public class Transaction implements Persistable {
     public Hash trunk;
     public Hash branch;
     public Hash obsoleteTag;
-    public Commitment value;
+    public String value;
     public String rangeProof;
-    public String blinding;
+    public Commitment vectorP;
     public long currentIndex;
     public long lastIndex;
     public long timestamp;
+    public Boolean isNull = false;
 
     public Hash tag;
     public long attachmentTimestamp;
@@ -58,19 +60,27 @@ public class Transaction implements Persistable {
     public byte[] metadata() {
         int allocateSize =
                 Hash.SIZE_IN_BYTES * 6 + //address,bundle,trunk,branch,obsoleteTag,tag
-                        Long.BYTES * 9 + //value,currentIndex,lastIndex,timestamp,attachmentTimestampLowerBound,attachmentTimestampUpperBound,arrivalTime,height
+                        Long.BYTES * 8+ //currentIndex,lastIndex,timestamp,attachmentTimestampLowerBound,attachmentTimestampUpperBound,arrivalTime,height
                         Integer.BYTES * 3 + //validity,type,snapshot
+                        371 + 55 + 4171 + // value, vectorP and rangeproof
                         1 + //solid
                         sender.getBytes().length; //sender
         ByteBuffer buffer = ByteBuffer.allocate(allocateSize);
         buffer.put(address.bytes());
+        byte[] tempByte = new byte[55];
+        Converter.bytes(Converter.allocatingTritsFromTrytes(vectorP.initialValue), tempByte);
+        buffer.put(tempByte);
+        tempByte = new byte[371];
+        Converter.bytes(Converter.allocatingTritsFromTrytes(value), tempByte);
+        buffer.put(tempByte);
+        tempByte = new byte[4171];
+        Converter.bytes(Converter.allocatingTritsFromTrytes(rangeProof), tempByte);
+        
+        buffer.put(tempByte);
         buffer.put(bundle.bytes());
         buffer.put(trunk.bytes());
         buffer.put(branch.bytes());
         buffer.put(obsoleteTag.bytes());
-        buffer.put(value.bytes());
-        buffer.put(blinding.getBytes());
-        buffer.put(rangeProof.getBytes());
         buffer.put(Serializer.serialize(currentIndex));
         buffer.put(Serializer.serialize(lastIndex));
         buffer.put(Serializer.serialize(timestamp));
@@ -85,7 +95,16 @@ public class Transaction implements Persistable {
         buffer.put(Serializer.serialize(arrivalTime));
         buffer.put(Serializer.serialize(height));
         //buffer.put((byte) (confirmed ? 1:0));
-        buffer.put((byte) (solid ? 1 : 0));
+        // TODO fix this
+        byte isSolid;
+        if (solid) {
+            isSolid = 1;
+        } else {
+            isSolid = 0;
+        }
+
+        buffer.put(isSolid);
+        //buffer.put((byte) 1);
         buffer.put(Serializer.serialize(snapshot));
         buffer.put(sender.getBytes());
         return buffer.array();
@@ -97,6 +116,20 @@ public class Transaction implements Persistable {
         if(bytes != null) {
             address = new Hash(bytes, i, Hash.SIZE_IN_BYTES);
             i += Hash.SIZE_IN_BYTES;
+            vectorP = new Commitment(bytes, i, 55);
+            i += 55;
+            byte[] blindByte = new byte[371];
+            System.arraycopy(bytes, i, blindByte, 0, 371);
+            int[] trits = new int[TransactionViewModel.VALUE_TRINARY_SIZE];
+            Converter.getTrits(blindByte, trits);
+            value = Converter.trytes(trits);
+            i += 371;
+            byte[] rangeByte = new byte[4171];
+            System.arraycopy(bytes, i, rangeByte, 0, 4171);
+            trits = new int[TransactionViewModel.RANGEPROOF_TRINARY_SIZE];
+            Converter.getTrits(rangeByte, trits);
+            rangeProof = Converter.trytes(trits);
+            i += 4171;
             bundle = new Hash(bytes, i, Hash.SIZE_IN_BYTES);
             i += Hash.SIZE_IN_BYTES;
             trunk = new Hash(bytes, i, Hash.SIZE_IN_BYTES);
@@ -105,16 +138,6 @@ public class Transaction implements Persistable {
             i += Hash.SIZE_IN_BYTES;
             obsoleteTag = new Hash(bytes, i, Hash.SIZE_IN_BYTES);
             i += Hash.SIZE_IN_BYTES;
-            value = new Commitment(bytes, i, 49);
-            i += Hash.SIZE_IN_BYTES;
-            byte[] blindByte = new byte[363];
-            System.arraycopy(bytes, i, blindByte, 0, 363);
-            blinding = new String(blindByte);
-            i += 363;
-            byte[] rangeByte = new byte[2456];
-            System.arraycopy(bytes, i, rangeByte, 0, 2456);
-            rangeProof = new String(rangeByte);
-            i += 2456;
             currentIndex = Serializer.getLong(bytes, i);
             i += Long.BYTES;
             lastIndex = Serializer.getLong(bytes, i);
@@ -143,7 +166,11 @@ public class Transaction implements Persistable {
             confirmed = bytes[i] == 1;
             i++;
             */
-            solid = bytes[i] == 1;
+            if (bytes[i] == 1) {
+                solid = true;
+            } else {
+                solid = false;
+            }
             i++;
             snapshot = Serializer.getInteger(bytes, i);
             i += Integer.BYTES;

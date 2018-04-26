@@ -108,8 +108,8 @@ public class TransactionViewModelTest {
         int[] blanks = new int[13];
         for(int i=0; i++ < 1000;) {
             int[] trits = getRandomTransactionTrits(seed), searchTrits;
-            System.arraycopy(new int[TransactionViewModel.VALUE_TRINARY_SIZE], 0, trits, TransactionViewModel.VALUE_TRINARY_OFFSET, TransactionViewModel.VALUE_TRINARY_SIZE);
-            Converter.copyTrits(seed.nextLong(), trits, TransactionViewModel.VALUE_TRINARY_OFFSET, TransactionViewModel.VALUE_USABLE_TRINARY_SIZE);
+            System.arraycopy(new int[TransactionViewModel.VECTORP_TRINARY_SIZE], 0, trits, TransactionViewModel.VECTORP_TRINARY_OFFSET, TransactionViewModel.VECTORP_TRINARY_SIZE);
+            Converter.copyTrits(seed.nextLong(), trits, TransactionViewModel.VECTORP_TRINARY_OFFSET, TransactionViewModel.VALUE_USABLE_TRINARY_SIZE);
             System.arraycopy(blanks, 0, trits, TransactionViewModel.TRUNK_TRANSACTION_TRINARY_OFFSET-blanks.length, blanks.length);
             System.arraycopy(blanks, 0, trits, TransactionViewModel.BRANCH_TRANSACTION_TRINARY_OFFSET-blanks.length, blanks.length);
             System.arraycopy(blanks, 0, trits, TransactionViewModel.BRANCH_TRANSACTION_TRINARY_OFFSET + TransactionViewModel.BRANCH_TRANSACTION_TRINARY_SIZE-blanks.length, blanks.length);
@@ -125,8 +125,8 @@ public class TransactionViewModelTest {
         /*
         for(int i=0; i++ < 1000;) {
             int[] trits = getRandomTransactionTrits(seed);
-            System.arraycopy(new int[TransactionViewModel.VALUE_TRINARY_SIZE], 0, trits, TransactionViewModel.VALUE_TRINARY_OFFSET, TransactionViewModel.VALUE_TRINARY_SIZE);
-            Converter.copyTrits(seed.nextLong(), trits, TransactionViewModel.VALUE_TRINARY_OFFSET, TransactionViewModel.VALUE_USABLE_TRINARY_SIZE);
+            System.arraycopy(new int[TransactionViewModel.VECTORP_TRINARY_SIZE], 0, trits, TransactionViewModel.VECTORP_TRINARY_OFFSET, TransactionViewModel.VECTORP_TRINARY_SIZE);
+            Converter.copyTrits(seed.nextLong(), trits, TransactionViewModel.VECTORP_TRINARY_OFFSET, TransactionViewModel.VALUE_USABLE_TRINARY_SIZE);
             TransactionViewModel transactionViewModel = new TransactionViewModel(trits);
             transactionViewModel.store();
             assertArrayEquals(transactionViewModel.getBytes(), TransactionViewModel.fromHash(transactionViewModel.getHash()).getBytes());

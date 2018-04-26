@@ -1,5 +1,18 @@
 package com.iota.iri;
 
+import com.iota.iri.controllers.AddressViewModel;
+import com.iota.iri.controllers.MilestoneViewModel;
+import com.iota.iri.controllers.TransactionViewModel;
+import com.iota.iri.hash.ISS;
+import com.iota.iri.hash.SpongeFactory;
+import com.iota.iri.model.Hash;
+import com.iota.iri.storage.Tangle;
+import com.iota.iri.utils.Converter;
+import com.iota.iri.zmq.MessageQ;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.net.ssl.HttpsURLConnection;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -11,19 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.net.ssl.HttpsURLConnection;
-
-import com.iota.iri.controllers.*;
-import com.iota.iri.hash.SpongeFactory;
-import com.iota.iri.zmq.MessageQ;
-import com.iota.iri.storage.Tangle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.iota.iri.hash.ISS;
-import com.iota.iri.model.Hash;
-import com.iota.iri.utils.Converter;
 
 import static com.iota.iri.Milestone.Validity.*;
 
@@ -189,10 +189,9 @@ public class Milestone {
                 //if (Arrays.equals(bundleTransactionViewModels.get(0).getHash(),transactionViewModel.getHash())) {
                 if (bundleTransactionViewModels.get(0).getHash().equals(transactionViewModel.getHash())) {
 
-                    //final TransactionViewModel transactionViewModel2 = StorageTransactions.instance().loadTransaction(transactionViewModel.trunkTransactionPointer);
                     final TransactionViewModel transactionViewModel2 = transactionViewModel.getTrunkTransaction(tangle);
-                    if (transactionViewModel2.getType() == TransactionViewModel.FILLED_SLOT
-                            && transactionViewModel.getBranchTransactionHash().equals(transactionViewModel2.getTrunkTransactionHash())
+                    if (//transactionViewModel2.getType() == TransactionViewModel.FILLED_SLOT
+                           true && transactionViewModel.getBranchTransactionHash().equals(transactionViewModel2.getTrunkTransactionHash())
                             && transactionViewModel.getBundleHash().equals(transactionViewModel2.getBundleHash())) {
 
                         final int[] trunkTransactionTrits = transactionViewModel.getTrunkTransactionHash().trits();

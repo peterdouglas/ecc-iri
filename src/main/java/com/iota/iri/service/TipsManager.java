@@ -1,18 +1,18 @@
 package com.iota.iri.service;
 
-import java.util.*;
-
 import com.iota.iri.LedgerValidator;
-import com.iota.iri.Snapshot;
+import com.iota.iri.Milestone;
 import com.iota.iri.TransactionValidator;
+import com.iota.iri.controllers.MilestoneViewModel;
+import com.iota.iri.controllers.TipsViewModel;
+import com.iota.iri.controllers.TransactionViewModel;
 import com.iota.iri.model.Hash;
-import com.iota.iri.controllers.*;
 import com.iota.iri.storage.Tangle;
 import com.iota.iri.zmq.MessageQ;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.iota.iri.Milestone;
+import java.util.*;
 
 public class TipsManager {
 
@@ -99,7 +99,7 @@ public class TipsManager {
 
     }
 
-    Hash transactionToApprove(final Set<Hash> visitedHashes, final Map<Hash, Long> diff, final Hash reference, final Hash extraTip, int depth, final int iterations, Random seed) throws Exception {
+    Hash transactionToApprove(final Set<Hash> visitedHashes, final Map<Hash, String> diff, final Hash reference, final Hash extraTip, int depth, final int iterations, Random seed) throws Exception {
 
         long startTime = System.nanoTime();
         if(depth > maxDepth) {
@@ -119,7 +119,7 @@ public class TipsManager {
                 if (ledgerValidator.updateDiff(visitedHashes, diff, tip)) {
                     return markovChainMonteCarlo(visitedHashes, diff, tip, extraTip, ratings, iterations, milestone.latestSolidSubtangleMilestoneIndex - depth * 2, maxDepthOk, seed);
                 } else {
-                    throw new RuntimeException("starting tip failed consistency check: " + tip.toString());
+                  throw new RuntimeException("starting tip failed consistency check: " + tip.toString());
                 }
             } catch (Exception e) {
                 milestone.latestSnapshot.rwlock.readLock().unlock();
@@ -150,7 +150,7 @@ public class TipsManager {
         return milestone.latestSolidSubtangleMilestone;
     }
 
-    Hash markovChainMonteCarlo(final Set<Hash> visitedHashes, final Map<Hash, Long> diff, final Hash tip, final Hash extraTip, final Map<Hash, Long> ratings, final int iterations, final int maxDepth, final Set<Hash> maxDepthOk, final Random seed) throws Exception {
+    Hash markovChainMonteCarlo(final Set<Hash> visitedHashes, final Map<Hash, String> diff, final Hash tip, final Hash extraTip, final Map<Hash, Long> ratings, final int iterations, final int maxDepth, final Set<Hash> maxDepthOk, final Random seed) throws Exception {
         Map<Hash, Integer> monteCarloIntegrations = new HashMap<>();
         Hash tail;
         for(int i = iterations; i-- > 0; ) {
@@ -174,7 +174,7 @@ public class TipsManager {
         }).map(Map.Entry::getKey).orElse(null);
     }
 
-    Hash randomWalk(final Set<Hash> visitedHashes, final Map<Hash, Long> diff, final Hash start, final Hash extraTip, final Map<Hash, Long> ratings, final int maxDepth, final Set<Hash> maxDepthOk, Random rnd) throws Exception {
+    Hash randomWalk(final Set<Hash> visitedHashes, final Map<Hash, String> diff, final Hash start, final Hash extraTip, final Map<Hash, Long> ratings, final int maxDepth, final Set<Hash> maxDepthOk, Random rnd) throws Exception {
         Hash tip = start, tail = tip;
         Hash[] tips;
         Set<Hash> tipSet;
@@ -188,7 +188,7 @@ public class TipsManager {
         if (extraTip != null) {
             extraTipList = Collections.singletonList(extraTip);
         }
-        Map<Hash, Long> myDiff = new HashMap<>(diff);
+        Map<Hash, String> myDiff = new HashMap<>(diff);
         Set<Hash> myApprovedHashes = new HashSet<>(visitedHashes);
 
         while (tip != null) {

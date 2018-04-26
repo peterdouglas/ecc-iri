@@ -29,7 +29,6 @@ import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.*;
 import org.apache.commons.io.IOUtils;
-import org.bouncycastle.math.ec.ECPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xnio.channels.StreamSinkChannel;
@@ -69,7 +68,7 @@ public class API {
     private Pattern trytesPattern = Pattern.compile("[9A-Z]*");
 
     private final static int HASH_SIZE = 81;
-    private final static int TRYTES_SIZE = 10287;
+    private final static int TRYTES_SIZE = 10302;
 
     private final static long MAX_TIMESTAMP_VALUE = (3^27 - 1) / 2;
 
@@ -103,7 +102,7 @@ public class API {
     }
 
     public void init() throws IOException {
-        readPreviousEpochsSpentAddresses();
+        //readPreviousEpochsSpentAddresses();
 
         final int apiPort = instance.configuration.integer(DefaultConfSettings.PORT);
         final String apiHost = instance.configuration.string(DefaultConfSettings.API_HOST);
@@ -169,7 +168,7 @@ public class API {
         } else if (body.length() > maxBodyLength) {
             response = ErrorResponse.create("Request too long");
         } else {
-            response = process(body, exchange.getSourceAddress());
+             response = process(body, exchange.getSourceAddress());
         }
         sendResponse(exchange, response, beginningTime);
     }
@@ -581,7 +580,7 @@ public class API {
         instance.milestone.latestSnapshot.rwlock.readLock().lock();
         try {
             Set<Hash> visitedHashes = new HashSet<>();
-            Map<Hash, Long> diff = new HashMap<>();
+            Map<Hash, String> diff = new HashMap<>();
             for (int i = 0; i < tipsToApprove; i++) {
                 tips[i] = instance.tipsManager.transactionToApprove(visitedHashes, diff, referenceHash, tips[0], depth, randomWalkCount, random);
                 if (tips[i] == null) {
@@ -850,7 +849,7 @@ public class API {
         final List<Hash> addresses = addrss.stream().map(address -> (new Hash(address)))
                 .collect(Collectors.toCollection(LinkedList::new));
         final List<Hash> hashes;
-        final Map<Hash, Long> balances = new HashMap<>();
+        final Map<Hash, List<String>> balances = new HashMap<>();
         instance.milestone.latestSnapshot.rwlock.readLock().lock();
         final int index = instance.milestone.latestSnapshot.index();
         if (tips == null || tips.size() == 0) {
@@ -862,12 +861,19 @@ public class API {
         try {
             for (final Hash address : addresses) {
                 String value = instance.milestone.latestSnapshot.getBalance(address);
-                if (value == null) value = 0L;
-                balances.put(address, value);
+                if (value == null) value = "0";
+                List<String> valueList = balances.get(address);
+                if (valueList == null) {
+                    valueList = new ArrayList<>();
+                    valueList.add(value);
+                    balances.put(address, valueList);
+                } else {
+                    balances.get(address).add(value);
+                }
             }
 
             final Set<Hash> visitedHashes;
-            final Map<Hash, ECPoint> diff;
+            final Map<Hash, String> diff;
 
             visitedHashes = new HashSet<>();
             diff = new HashMap<>();
@@ -879,7 +885,10 @@ public class API {
                     return ErrorResponse.create("Tips are not consistent");
                 }
             }
-            diff.forEach((key, value) -> balances.computeIfPresent(key, (hash, aLong) -> value + aLong));
+            diff.forEach((key, value) -> balances.computeIfPresent(key, (hash, aLong) -> {
+                aLong.add(value);
+                return aLong;
+            }));
         } finally {
             instance.milestone.latestSnapshot.rwlock.readLock().unlock();
         }

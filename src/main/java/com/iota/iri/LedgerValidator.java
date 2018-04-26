@@ -8,7 +8,6 @@ import com.iota.iri.model.Hash;
 import com.iota.iri.network.TransactionRequester;
 import com.iota.iri.storage.Tangle;
 import com.iota.iri.zmq.MessageQ;
-import org.bouncycastle.math.ec.ECPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,8 +53,8 @@ public class LedgerValidator {
      * @return {state}                           the addresses that have a balance changed since the last diff check
      * @throws Exception
      */
-    public Map<Hash,ECPoint> getLatestDiff(final Set<Hash> visitedNonMilestoneSubtangleHashes, Hash tip, int latestSnapshotIndex, boolean milestone) throws Exception {
-        Map<Hash, ECPoint> state = new HashMap<>();
+    public Map<Hash,String> getLatestDiff(final Set<Hash> visitedNonMilestoneSubtangleHashes, Hash tip, int latestSnapshotIndex, boolean milestone) throws Exception {
+        Map<Hash, String> state = new HashMap<>();
         int numberOfAnalyzedTransactions = 0;
         Set<Hash> countedTx = new HashSet<>(Collections.singleton(Hash.NULL_HASH));
 
@@ -100,13 +99,16 @@ public class LedgerValidator {
                                     validBundle = true;
 
                                     for (final TransactionViewModel bundleTransactionViewModel : bundleTransactionViewModels) {
-
-                                        if (!bundleTransactionViewModel.value().equals(Commitment.zero)  && countedTx.add(bundleTransactionViewModel.getHash())) {
+                                        System.out.println(bundleTransactionViewModel.vectorP().toString());
+                                        System.out.println(Commitment.zero.toString());
+                                        System.out.println(Commitment.zero.equals(bundleTransactionViewModel.vectorP()));
+                                        if (!bundleTransactionViewModel.vectorP().equals(Commitment.zero)  && countedTx.add(bundleTransactionViewModel.getHash())) {
 
                                             final Hash address = bundleTransactionViewModel.getAddressHash();
-                                            final ECPoint value = state.get(address);
-                                            state.put(address, value == null ? bundleTransactionViewModel.value()
-                                                    : value.add(bundleTransactionViewModel.value()));
+                                            final String value = state.get(address);
+                                            if (!bundleTransactionViewModel.value().equals(value)) {
+                                                state.put(address, bundleTransactionViewModel.value());
+                                            }
                                         }
                                     }
 
@@ -234,7 +236,7 @@ public class LedgerValidator {
             boolean hasSnapshot = transactionSnapshotIndex != 0;
             if (!hasSnapshot) {
                 Hash tail = transactionViewModel.getHash();
-                Map<Hash, ECPoint> currentState = getLatestDiff(new HashSet<>(), tail, milestone.latestSnapshot.index(), true);
+                Map<Hash, String> currentState = getLatestDiff(new HashSet<>(), tail, milestone.latestSnapshot.index(), true);
                 hasSnapshot = currentState != null && Snapshot.isConsistent(milestone.latestSnapshot.patchedDiff(currentState));
                 if (hasSnapshot) {
                     updateSnapshotMilestone(milestoneVM.getHash(), milestoneVM.index());
@@ -254,27 +256,25 @@ public class LedgerValidator {
 
     public boolean checkConsistency(List<Hash> hashes) throws Exception {
         Set<Hash> visitedHashes = new HashSet<>();
-        Map<Hash, ECPoint> diff = new HashMap<>();
+        Map<Hash, String> diff = new HashMap<>();
         for (Hash hash : hashes) {
             if (!updateDiff(visitedHashes, diff, hash)) return false;
         }
         return true;
     }
 
-    public boolean updateDiff(Set<Hash> approvedHashes, final Map<Hash, ECPoint> diff, Hash tip) throws Exception {
+    public boolean updateDiff(Set<Hash> approvedHashes, final Map<Hash, String> diff, Hash tip) throws Exception {
         if(!TransactionViewModel.fromHash(tangle, tip).isSolid()) {
             return false;
         }
         if (approvedHashes.contains(tip)) return true;
         Set<Hash> visitedHashes = new HashSet<>(approvedHashes);
-        Map<Hash, ECPoint> currentState = getLatestDiff(visitedHashes, tip, milestone.latestSnapshot.index(), false);
+        Map<Hash, String> currentState = getLatestDiff(visitedHashes, tip, milestone.latestSnapshot.index(), false);
         if (currentState == null) return false;
         boolean isConsistent = Snapshot.isConsistent(milestone.latestSnapshot.patchedDiff(currentState));
         if (isConsistent) {
             currentState.forEach((key, value) -> {
-                if(diff.computeIfPresent(key, ((hash, aLong) -> value.add(aLong))) == null) {
-                    diff.putIfAbsent(key, value);
-                }
+               diff.put(key, value);
             });
             approvedHashes.addAll(visitedHashes);
         }

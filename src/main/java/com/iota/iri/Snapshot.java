@@ -108,7 +108,7 @@ public class Snapshot {
         }*/
         rwlock.writeLock().lock();
         patch.entrySet().stream().forEach(hashLongEntry -> {
-            if (state.computeIfPresent(hashLongEntry.getKey(), (hash, aLong) -> hashLongEntry.getValue() + aLong) == null) {
+            if (state.computeIfPresent(hashLongEntry.getKey(), (hash, aLong) -> hashLongEntry.getValue()) == null) {
                 state.putIfAbsent(hashLongEntry.getKey(), hashLongEntry.getValue());
             }
         });
@@ -118,16 +118,10 @@ public class Snapshot {
 
     public static boolean isConsistent(Map<Hash, String> state) {
         final Iterator<Map.Entry<Hash, String>> stateIterator = state.entrySet().iterator();
-        //while (stateIterator.hasNext()) {
+        while (stateIterator.hasNext()) {
 
-          //  final Map.Entry<Hash, String> entry = stateIterator.next();
-            /*if (entry.getValue() <= 0) {
-
-                if (entry.getValue() < 0) {
-                    log.info("Skipping negative value for address: " + entry.getKey() + ": " + entry.getValue());
-                    return false;
-                }
-
+          final Map.Entry<Hash, String> entry = stateIterator.next();
+           if (entry.getValue().startsWith("99999999999")) {
                 stateIterator.remove();
             }
             //////////// --Coo only--
@@ -138,7 +132,7 @@ public class Snapshot {
                  * + "\"), " + entry.getValue() + "L);"); }
                  */
             ////////////
-        //}
+        }
         return true;
     }
 }

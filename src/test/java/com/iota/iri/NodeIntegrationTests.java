@@ -1,8 +1,6 @@
 package com.iota.iri;
 
 import com.iota.iri.conf.Configuration;
-
-import static com.iota.iri.controllers.TransactionViewModel.*;
 import com.iota.iri.hash.Curl;
 import com.iota.iri.hash.Sponge;
 import com.iota.iri.hash.SpongeFactory;
@@ -13,6 +11,7 @@ import com.iota.iri.utils.Converter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.util.ArrayList;
@@ -20,6 +19,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+
+import static com.iota.iri.controllers.TransactionViewModel.*;
 
 /**
  * Created by paul on 5/19/17.
@@ -39,7 +40,7 @@ public class NodeIntegrationTests {
     }
 
 
-    //@Test
+    @Test
     public void testGetsSolid() throws Exception {
         int count = 1;
         long spacing = 5000;
@@ -142,10 +143,14 @@ public class NodeIntegrationTests {
         List<int[]> transactions = new ArrayList<>();
         transactions.add(new int[TRINARY_SIZE]);
         Converter.copyTrits(index, transactions.get(0), OBSOLETE_TAG_TRINARY_OFFSET, OBSOLETE_TAG_TRINARY_SIZE);
+        Converter.copyTrits(System.currentTimeMillis(),transactions.get(0),TIMESTAMP_TRINARY_OFFSET,
+                TIMESTAMP_TRINARY_SIZE);
+        Converter.copyTrits(System.currentTimeMillis(),transactions.get(0),ATTACHMENT_TIMESTAMP_TRINARY_OFFSET,
+                ATTACHMENT_TIMESTAMP_TRINARY_SIZE);
         transactions.add(Arrays.copyOf(transactions.get(0), TRINARY_SIZE));
         System.arraycopy(Iota.TESTNET_COORDINATOR.trits(), 0, transactions.get(0), ADDRESS_TRINARY_OFFSET, ADDRESS_TRINARY_SIZE);
         setBundleHash(transactions, null);
-        List<String> elements = api.attachToTangleStatement(tips[0], tips[1], 13, transactions.stream().map(Converter::trytes).collect(Collectors.toList()));
+        List<String> elements = api.attachToTangleStatement(tips[0], tips[1], 0, transactions.stream().map(Converter::trytes).collect(Collectors.toList()));
         api.storeTransactionStatement(elements);
         api.broadcastTransactionStatement(elements);
     }
@@ -160,7 +165,7 @@ public class NodeIntegrationTests {
         for (int i = 0; i < transactions.size(); i++) {
             int[] t = Arrays.copyOfRange(transactions.get(i), ADDRESS_TRINARY_OFFSET, ADDRESS_TRINARY_OFFSET + ADDRESS_TRINARY_SIZE);
 
-            int[] valueTrits = Arrays.copyOfRange(transactions.get(i), VALUE_TRINARY_OFFSET, VALUE_TRINARY_OFFSET + VALUE_TRINARY_SIZE);
+            int[] valueTrits = Arrays.copyOfRange(transactions.get(i), VECTORP_TRINARY_OFFSET, VECTORP_TRINARY_OFFSET + VECTORP_TRINARY_SIZE);
             t = ArrayUtils.addAll(t, valueTrits);
 
             int[] tagTrits = Arrays.copyOfRange(transactions.get(i), OBSOLETE_TAG_TRINARY_OFFSET, OBSOLETE_TAG_TRINARY_OFFSET + OBSOLETE_TAG_TRINARY_SIZE);

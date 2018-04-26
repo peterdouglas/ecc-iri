@@ -3,7 +3,6 @@ package com.iota.iri.controllers;
 import com.iota.iri.model.Hash;
 import com.iota.iri.model.StateDiff;
 import com.iota.iri.storage.Tangle;
-import org.bouncycastle.math.ec.ECPoint;
 
 import java.util.Map;
 
@@ -18,7 +17,7 @@ public class StateDiffViewModel {
         return new StateDiffViewModel((StateDiff) tangle.load(StateDiff.class, hash), hash);
     }
 
-    public StateDiffViewModel(final Map<Hash, ECPoint> state, final Hash hash) {
+    public StateDiffViewModel(final Map<Hash, String> state, final Hash hash) {
         this.hash = hash;
         this.stateDiff = new StateDiff();
         this.stateDiff.state = state;
@@ -37,7 +36,7 @@ public class StateDiffViewModel {
         return hash;
     }
 
-    public Map<Hash, ECPoint> getDiff() {
+    public Map<Hash, String> getDiff() {
         return stateDiff.state;
     }
 

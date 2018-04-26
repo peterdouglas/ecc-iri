@@ -3,19 +3,20 @@ package com.iota.iri.hash;
 import com.iota.iri.controllers.TransactionViewModelTest;
 import com.iota.iri.model.Hash;
 import com.iota.iri.utils.Converter;
-import java.util.Random;
-
-import static org.junit.Assert.*;
-
-import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.util.Random;
+import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 public class PearlDiverTest {
 
-    private static final int TRYTE_LENGTH = 2673;
-    private static final int MIN_WEIGHT_MAGNITUDE = 9;
+    private static final int TRYTE_LENGTH = 10302;
+    private static final int MIN_WEIGHT_MAGNITUDE = 0;
     private static final int NUM_CORES = -1; // use n-1 cores
 
     private PearlDiver pearlDiver;

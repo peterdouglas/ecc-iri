@@ -33,7 +33,7 @@ public class Node {
     private static final Logger log = LoggerFactory.getLogger(Node.class);
 
 
-    public static final int TRANSACTION_PACKET_SIZE = 1650;
+    public static final int TRANSACTION_PACKET_SIZE = 10293;
     private int BROADCAST_QUEUE_SIZE;
     private int RECV_QUEUE_SIZE;
     private int REPLY_QUEUE_SIZE;
