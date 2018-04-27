@@ -99,15 +99,15 @@ public class LedgerValidator {
                                     validBundle = true;
 
                                     for (final TransactionViewModel bundleTransactionViewModel : bundleTransactionViewModels) {
-                                        System.out.println(bundleTransactionViewModel.vectorP().toString());
-                                        System.out.println(Commitment.zero.toString());
-                                        System.out.println(Commitment.zero.equals(bundleTransactionViewModel.vectorP()));
-                                        if (!bundleTransactionViewModel.vectorP().equals(Commitment.zero)  && countedTx.add(bundleTransactionViewModel.getHash())) {
+                                        
+                                        if (/*!bundleTransactionViewModel.vectorP().equals(Commitment.zero)  && */countedTx.add(bundleTransactionViewModel.getHash())) {
 
                                             final Hash address = bundleTransactionViewModel.getAddressHash();
                                             final String value = state.get(address);
-                                            if (!bundleTransactionViewModel.value().equals(value)) {
+                                            if (!bundleTransactionViewModel.value().equals(value) && !bundleTransactionViewModel.value().startsWith("999999999")) {
                                                 state.put(address, bundleTransactionViewModel.value());
+                                            } else if (bundleTransactionViewModel.value().startsWith("999999999")) {
+                                                state.put(address, "0");
                                             }
                                         }
                                     }
@@ -271,10 +271,16 @@ public class LedgerValidator {
         Set<Hash> visitedHashes = new HashSet<>(approvedHashes);
         Map<Hash, String> currentState = getLatestDiff(visitedHashes, tip, milestone.latestSnapshot.index(), false);
         if (currentState == null) return false;
+        System.out.println(Arrays.asList(currentState));
+        System.out.println(Arrays.asList(diff));
         boolean isConsistent = Snapshot.isConsistent(milestone.latestSnapshot.patchedDiff(currentState));
         if (isConsistent) {
             currentState.forEach((key, value) -> {
-               diff.put(key, value);
+                if (diff.containsKey(key)) {
+                    diff.replace(key, value);
+                } else {
+                    diff.put(key, value);
+                }
             });
             approvedHashes.addAll(visitedHashes);
         }

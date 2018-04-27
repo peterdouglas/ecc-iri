@@ -28,14 +28,19 @@ public class Commitment implements Serializable  {
         this.commitment = zero;
     }
     
-    public Commitment(byte[] byteComm) {
-        createCommitment( byteComm);
+    public Commitment(String strVal) {
+        this.initialValue = strVal;
+        createCommitment( strVal);
     }
 
     public Commitment(byte[] bytes, int offset, int size) {
         byte[] byteComm = new byte[size];
         System.arraycopy(bytes, offset, byteComm, 0, size - offset > 55 ? bytes.length-offset: size);
-        createCommitment( byteComm);
+       
+        int[] tritAdd = new int[TransactionViewModel.VECTORP_TRINARY_SIZE];
+        Converter.getTrits(byteComm, tritAdd);
+        this.initialValue = Converter.trytes(tritAdd);
+        createCommitment( this.initialValue);
     }
 
     public ECPoint getCommitment() {
@@ -46,12 +51,8 @@ public class Commitment implements Serializable  {
         return this.initialValue.getBytes();
     }
 
-    private void createCommitment(byte[] byteComm) {
+    private void createCommitment(String convStr) {
         init();
-        int[] tritAdd = new int[TransactionViewModel.VECTORP_TRINARY_SIZE];
-        Converter.getTrits(byteComm, tritAdd);
-        this.initialValue = Converter.trytes(tritAdd);
-        String convStr = this.initialValue;
         int removeChar = 0;
         for (int i = convStr.length()-1; i >= 0 ; i--) {
 

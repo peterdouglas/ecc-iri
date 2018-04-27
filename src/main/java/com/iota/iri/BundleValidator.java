@@ -57,9 +57,9 @@ public class BundleValidator {
                         break;
                     }
 
-                    if (i++ == lastIndex) { // It's supposed to become -3812798742493 after 3812798742493 and to go "down" to -1 but we hope that noone will create such long bundles
+                    if (i+2 == lastIndex || i++ == lastIndex) { // It's supposed to become -3812798742493 after 3812798742493 and to go "down" to -1 but we hope that noone will create such long bundles
 
-                        if (bundleValue.equals(Commitment.zero)) {
+                        //if (bundleValue.equals(Commitment.zero)) {
 
                             if (instanceTransactionViewModels.get(0).getValidity() == 0) {
                                 curlInstance.reset();
@@ -110,9 +110,10 @@ public class BundleValidator {
                             } else {
                                 transactions.add(instanceTransactionViewModels);
                             }
-                        } else {
+                            // TODO add rangeproof code
+                        /*} else {
                             instanceTransactionViewModels.get(0).setValidity(tangle, -1);
-                        }
+                        }*/
                         break;
 
                     } else {

@@ -190,8 +190,8 @@ public class Milestone {
                 if (bundleTransactionViewModels.get(0).getHash().equals(transactionViewModel.getHash())) {
 
                     final TransactionViewModel transactionViewModel2 = transactionViewModel.getTrunkTransaction(tangle);
-                    if (//transactionViewModel2.getType() == TransactionViewModel.FILLED_SLOT
-                           true && transactionViewModel.getBranchTransactionHash().equals(transactionViewModel2.getTrunkTransactionHash())
+                    if (transactionViewModel2.getType() == TransactionViewModel.FILLED_SLOT
+                            && transactionViewModel.getBranchTransactionHash().equals(transactionViewModel2.getTrunkTransactionHash())
                             && transactionViewModel.getBundleHash().equals(transactionViewModel2.getBundleHash())) {
 
                         final int[] trunkTransactionTrits = transactionViewModel.getTrunkTransactionHash().trits();

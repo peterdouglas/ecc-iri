@@ -109,7 +109,7 @@ public class Snapshot {
         rwlock.writeLock().lock();
         patch.entrySet().stream().forEach(hashLongEntry -> {
             if (state.computeIfPresent(hashLongEntry.getKey(), (hash, aLong) -> hashLongEntry.getValue()) == null) {
-                state.putIfAbsent(hashLongEntry.getKey(), hashLongEntry.getValue());
+                state.put(hashLongEntry.getKey(), hashLongEntry.getValue());
             }
         });
         index = newIndex;

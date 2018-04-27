@@ -365,9 +365,8 @@ public class TransactionViewModel {
         /*byte[] address = new byte[Hash.SIZE_IN_BYTES];
         Converter.bytes(trits(), ADDRESS_TRINARY_OFFSET, address, 0, ADDRESS_TRINARY_SIZE);
         transaction.address = new Hash(address);*/
-        byte[] commBytes = new byte[55];
-        Converter.bytes(trits(), VECTORP_TRINARY_OFFSET, commBytes, 0, VECTORP_TRINARY_SIZE);
-        transaction.vectorP = new Commitment(commBytes);
+        String strConv = Converter.trytes(trits(), VECTORP_TRINARY_OFFSET,  VECTORP_TRINARY_SIZE);
+        transaction.vectorP = new Commitment(strConv);
         transaction.value = Converter.trytes(trits(), VALUE_TRINARY_OFFSET, VALUE_TRINARY_SIZE);
         transaction.rangeProof = Converter.trytes(trits(), RANGEPROOF_TRINARY_OFFSET, RANGEPROOF_TRINARY_SIZE);
         transaction.timestamp = Converter.longValue(trits(), TIMESTAMP_TRINARY_OFFSET, TIMESTAMP_TRINARY_SIZE);
