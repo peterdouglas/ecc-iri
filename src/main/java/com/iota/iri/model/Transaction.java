@@ -11,7 +11,8 @@ import java.nio.ByteBuffer;
  * Created by paul on 3/2/17 for iri.
  */
 public class Transaction implements Persistable {
-    public static final int SIZE = 6182;
+    public static final int SIZE = 3824;
+    //6182;
 
     public byte[] bytes;
 
@@ -62,7 +63,7 @@ public class Transaction implements Persistable {
                 Hash.SIZE_IN_BYTES * 6 + //address,bundle,trunk,branch,obsoleteTag,tag
                         Long.BYTES * 8+ //currentIndex,lastIndex,timestamp,attachmentTimestampLowerBound,attachmentTimestampUpperBound,arrivalTime,height
                         Integer.BYTES * 3 + //validity,type,snapshot
-                        371 + 55 + 4171 + // value, vectorP and rangeproof
+                        371 + 55 + 1813 + // value, vectorP and rangeproof
                         1 + //solid
                         sender.getBytes().length; //sender
         ByteBuffer buffer = ByteBuffer.allocate(allocateSize);
@@ -73,7 +74,7 @@ public class Transaction implements Persistable {
         tempByte = new byte[371];
         Converter.bytes(Converter.allocatingTritsFromTrytes(value), tempByte);
         buffer.put(tempByte);
-        tempByte = new byte[4171];
+        tempByte = new byte[1813];
         Converter.bytes(Converter.allocatingTritsFromTrytes(rangeProof), tempByte);
         
         buffer.put(tempByte);
@@ -124,12 +125,12 @@ public class Transaction implements Persistable {
             Converter.getTrits(blindByte, trits);
             value = Converter.trytes(trits);
             i += 371;
-            byte[] rangeByte = new byte[4171];
-            System.arraycopy(bytes, i, rangeByte, 0, 4171);
+            byte[] rangeByte = new byte[1813];
+            System.arraycopy(bytes, i, rangeByte, 0, 1813);
             trits = new int[TransactionViewModel.RANGEPROOF_TRINARY_SIZE];
             Converter.getTrits(rangeByte, trits);
             rangeProof = Converter.trytes(trits);
-            i += 4171;
+            i += 1813;
             bundle = new Hash(bytes, i, Hash.SIZE_IN_BYTES);
             i += Hash.SIZE_IN_BYTES;
             trunk = new Hash(bytes, i, Hash.SIZE_IN_BYTES);

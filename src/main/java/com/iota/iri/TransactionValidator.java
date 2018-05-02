@@ -87,7 +87,8 @@ public class TransactionValidator {
         transactionViewModel.setMetadata();
         transactionViewModel.setAttachmentData();
         if(hasInvalidTimestamp(transactionViewModel)) {
-            throw new StaleTimestampException("Invalid transaction timestamp.");
+            System.out.println("has invalid timestamp");
+            //throw new StaleTimestampException("Invalid transaction timestamp.");
         }
         /*for (int i = VECTORP_TRINARY_OFFSET + VALUE_USABLE_TRINARY_SIZE; i < VECTORP_TRINARY_OFFSET + VECTORP_TRINARY_SIZE; i++) {
             if (transactionViewModel.trits()[i] != 0) {

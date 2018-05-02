@@ -34,7 +34,7 @@ public class KerlTest {
     @Test
     public void bytesFromBigInt() throws Exception {
         int byte_size = 48;
-        BigInteger bigInteger = new BigInteger("13190295509826637194583200125168488859623001289643321872497025844241981297292953903419783680940401133507992851240799");
+        BigInteger bigInteger = new BigInteger("13190295509826637094583200125168488859623001289643321872497025844241981297292953903419783680940401133507992851240799");
         byte[] outBytes = new byte[Kerl.BYTE_HASH_LENGTH];
         Kerl.bytesFromBigInt(bigInteger,outBytes, 0);
         BigInteger out_bigInteger = Kerl.bigIntFromBytes(outBytes,0,outBytes.length);

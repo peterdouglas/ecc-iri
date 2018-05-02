@@ -95,6 +95,7 @@ public class Snapshot {
     public Map<Hash, String> patchedDiff(Map<Hash, String> diff) {
         Map<Hash, String> patch;
         rwlock.readLock().lock();
+        
         patch = diff.entrySet().stream().map(hashLongEntry ->
             new HashMap.SimpleEntry<>(hashLongEntry.getKey(), state.getOrDefault(hashLongEntry.getKey(), "0") + hashLongEntry.getValue())
         ).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));

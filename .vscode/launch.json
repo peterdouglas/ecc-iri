@@ -5,16 +5,16 @@
     "version": "0.2.0",
     "configurations": [
 
-        {
-            "type": "java",
-            "name": "Debug (Launch)-IRI<iri>",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "console": "internalConsole",
-            "stopOnEntry": true,
-            "mainClass": "com.iota.iri.IRI",
-            "projectName": "iri",
-            "args": ""
-        },
+    {
+        "type": "java",
+        "name": "Debug (Launch)-IRI<iri>",
+        "request": "launch",
+        "cwd": "${workspaceFolder}",
+        "console": "internalConsole",
+        "stopOnEntry": false,
+        "mainClass": "com.iota.iri.IRI",
+        "projectName": "iri",
+        "args": ""
+    },
     ]
 }

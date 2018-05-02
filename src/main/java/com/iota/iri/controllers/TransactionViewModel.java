@@ -7,15 +7,14 @@ import com.iota.iri.storage.Tangle;
 import com.iota.iri.utils.Converter;
 import com.iota.iri.utils.Pair;
 import org.spongycastle.math.ec.ECPoint;
-import java.util.*;
 
-import static com.iota.iri.model.Commitment.zero;
+import java.util.*;
 
 public class TransactionViewModel {
 
     private final com.iota.iri.model.Transaction transaction;
 
-    public static final int SIZE = 6182;
+    public static final int SIZE = 3824;
     private static final int TAG_SIZE = 27;
 
     public static final long SUPPLY = 2779530283277761L; // = (3^33 - 1) / 2
@@ -24,7 +23,7 @@ public class TransactionViewModel {
     public static final int ADDRESS_TRINARY_OFFSET = SIGNATURE_MESSAGE_FRAGMENT_TRINARY_OFFSET + SIGNATURE_MESSAGE_FRAGMENT_TRINARY_SIZE, ADDRESS_TRINARY_SIZE = 243;
     public static final int VECTORP_TRINARY_OFFSET = ADDRESS_TRINARY_OFFSET + ADDRESS_TRINARY_SIZE, VECTORP_TRINARY_SIZE = 270;
     public static final int VALUE_TRINARY_OFFSET = VECTORP_TRINARY_OFFSET + VECTORP_TRINARY_SIZE, VALUE_TRINARY_SIZE = 1848;
-    public static final int RANGEPROOF_TRINARY_OFFSET = VALUE_TRINARY_OFFSET + VALUE_TRINARY_SIZE, RANGEPROOF_TRINARY_SIZE = 20850;
+    public static final int RANGEPROOF_TRINARY_OFFSET = VALUE_TRINARY_OFFSET + VALUE_TRINARY_SIZE, RANGEPROOF_TRINARY_SIZE = 9060;
     public static final int OBSOLETE_TAG_TRINARY_OFFSET = RANGEPROOF_TRINARY_OFFSET + RANGEPROOF_TRINARY_SIZE, OBSOLETE_TAG_TRINARY_SIZE = 81;
     public static final int TIMESTAMP_TRINARY_OFFSET = OBSOLETE_TAG_TRINARY_OFFSET + OBSOLETE_TAG_TRINARY_SIZE, TIMESTAMP_TRINARY_SIZE = 27;
     public static final int CURRENT_INDEX_TRINARY_OFFSET = TIMESTAMP_TRINARY_OFFSET + TIMESTAMP_TRINARY_SIZE, CURRENT_INDEX_TRINARY_SIZE = 27;

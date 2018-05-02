@@ -68,7 +68,7 @@ public class API {
     private Pattern trytesPattern = Pattern.compile("[9A-Z]*");
 
     private final static int HASH_SIZE = 81;
-    private final static int TRYTES_SIZE = 10302;
+    private final static int TRYTES_SIZE = 6372;
 
     private final static long MAX_TIMESTAMP_VALUE = (3^27 - 1) / 2;
 

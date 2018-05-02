@@ -108,7 +108,7 @@ public class TipsManager {
 
         if(milestone.latestSolidSubtangleMilestoneIndex > Milestone.MILESTONE_START_INDEX ||
                 milestone.latestMilestoneIndex == Milestone.MILESTONE_START_INDEX) {
-
+            
             Map<Hash, Long> ratings = new HashMap<>();
             Set<Hash> analyzedTips = new HashSet<>();
             Set<Hash> maxDepthOk = new HashSet<>();

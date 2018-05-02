@@ -3,7 +3,6 @@ package com.iota.iri;
 import com.iota.iri.controllers.MilestoneViewModel;
 import com.iota.iri.controllers.StateDiffViewModel;
 import com.iota.iri.controllers.TransactionViewModel;
-import com.iota.iri.model.Commitment;
 import com.iota.iri.model.Hash;
 import com.iota.iri.network.TransactionRequester;
 import com.iota.iri.storage.Tangle;

@@ -15,7 +15,7 @@ public class PearlDiver {
         COMPLETED
     }
 
-    private static final int TRANSACTION_LENGTH = 30906;
+    private static final int TRANSACTION_LENGTH = 19116;
 
     private static final int CURL_HASH_LENGTH = 243;
     private static final int CURL_STATE_LENGTH = CURL_HASH_LENGTH * 3;

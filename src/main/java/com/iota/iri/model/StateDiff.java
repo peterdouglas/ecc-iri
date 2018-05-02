@@ -23,8 +23,8 @@ public class StateDiff implements Persistable {
         int i;
         state = new HashMap<>();
         if(bytes != null) {
-            for (i = 0; i < bytes.length; i += Hash.SIZE_IN_BYTES + 366) {
-                state.put(new Hash(bytes, i, Hash.SIZE_IN_BYTES), new String(Arrays.copyOfRange(bytes, i + Hash.SIZE_IN_BYTES, i + Hash.SIZE_IN_BYTES + 366)));
+            for (i = 0; i < bytes.length; i += Hash.SIZE_IN_BYTES + 371) {
+                state.put(new Hash(bytes, i, Hash.SIZE_IN_BYTES), new String(Arrays.copyOfRange(bytes, i + Hash.SIZE_IN_BYTES, i + Hash.SIZE_IN_BYTES + 371)));
 
             }
         }
