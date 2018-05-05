@@ -96,7 +96,7 @@ public class Snapshot {
         Map<Hash, String> patch;
         rwlock.readLock().lock();
         patch = diff.entrySet().stream().map(hashLongEntry ->
-            new HashMap.SimpleEntry<>(hashLongEntry.getKey(), state.getOrDefault(hashLongEntry.getKey(), "0") + hashLongEntry.getValue())
+            new HashMap.SimpleEntry<>(hashLongEntry.getKey(), hashLongEntry.getValue())
         ).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         rwlock.readLock().unlock();
         return patch;
@@ -108,9 +108,7 @@ public class Snapshot {
         }*/
         rwlock.writeLock().lock();
         patch.entrySet().stream().forEach(hashLongEntry -> {
-            if (state.computeIfPresent(hashLongEntry.getKey(), (hash, aLong) -> hashLongEntry.getValue()) == null) {
                 state.put(hashLongEntry.getKey(), hashLongEntry.getValue());
-            }
         });
         index = newIndex;
         rwlock.writeLock().unlock();
@@ -119,8 +117,9 @@ public class Snapshot {
     public static boolean isConsistent(Map<Hash, String> state) {
         final Iterator<Map.Entry<Hash, String>> stateIterator = state.entrySet().iterator();
         while (stateIterator.hasNext()) {
-
+          
           final Map.Entry<Hash, String> entry = stateIterator.next();
+          System.out.println(entry.toString());
            if (entry.getValue().startsWith("99999999999")) {
                 stateIterator.remove();
             }

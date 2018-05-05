@@ -7,9 +7,8 @@ import com.iota.iri.storage.Tangle;
 import com.iota.iri.utils.Converter;
 import com.iota.iri.utils.Pair;
 import org.spongycastle.math.ec.ECPoint;
-import java.util.*;
 
-import static com.iota.iri.model.Commitment.zero;
+import java.util.*;
 
 public class TransactionViewModel {
 
@@ -353,7 +352,6 @@ public class TransactionViewModel {
     public long lastIndex() {
         return transaction.lastIndex;
     }
-
     public void setAttachmentData() {
         getTagValue();
         transaction.attachmentTimestamp = Converter.longValue(trits(), ATTACHMENT_TIMESTAMP_TRINARY_OFFSET, ATTACHMENT_TIMESTAMP_TRINARY_SIZE);

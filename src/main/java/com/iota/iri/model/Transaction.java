@@ -115,6 +115,7 @@ public class Transaction implements Persistable {
         int i = 0;
         if(bytes != null) {
             address = new Hash(bytes, i, Hash.SIZE_IN_BYTES);
+            
             i += Hash.SIZE_IN_BYTES;
             vectorP = new Commitment(bytes, i, 55);
             i += 55;

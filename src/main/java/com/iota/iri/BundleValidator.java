@@ -57,7 +57,7 @@ public class BundleValidator {
                         break;
                     }
 
-                    if (i+2 == lastIndex || i++ == lastIndex) { // It's supposed to become -3812798742493 after 3812798742493 and to go "down" to -1 but we hope that noone will create such long bundles
+                    if (i+1 == lastIndex || i+2 == lastIndex || i++ == lastIndex) { // It's supposed to become -3812798742493 after 3812798742493 and to go "down" to -1 but we hope that noone will create such long bundles
 
                         //if (bundleValue.equals(Commitment.zero)) {
 

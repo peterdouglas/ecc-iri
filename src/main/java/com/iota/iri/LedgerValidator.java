@@ -103,6 +103,7 @@ public class LedgerValidator {
                                         if (/*!bundleTransactionViewModel.vectorP().equals(Commitment.zero)  && */countedTx.add(bundleTransactionViewModel.getHash())) {
 
                                             final Hash address = bundleTransactionViewModel.getAddressHash();
+                                            System.out.println(address.toString());
                                             final String value = state.get(address);
                                             if (!bundleTransactionViewModel.value().equals(value) && !bundleTransactionViewModel.value().startsWith("999999999")) {
                                                 state.put(address, bundleTransactionViewModel.value());
