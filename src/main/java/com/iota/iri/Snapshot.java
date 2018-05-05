@@ -122,7 +122,7 @@ public class Snapshot {
 
           final Map.Entry<Hash, String> entry = stateIterator.next();
            if (entry.getValue().startsWith("99999999999")) {
-                stateIterator.remove();
+                System.out.println("Address has a negative value" + entry.getKey());
             }
             //////////// --Coo only--
                 /*
