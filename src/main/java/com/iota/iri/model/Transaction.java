@@ -11,7 +11,7 @@ import java.nio.ByteBuffer;
  * Created by paul on 3/2/17 for iri.
  */
 public class Transaction implements Persistable {
-    public static final int SIZE = 6182;
+    public static final int SIZE = 3515;
 
     public byte[] bytes;
 
@@ -62,25 +62,25 @@ public class Transaction implements Persistable {
                 Hash.SIZE_IN_BYTES * 6 + //address,bundle,trunk,branch,obsoleteTag,tag
                         Long.BYTES * 8+ //currentIndex,lastIndex,timestamp,attachmentTimestampLowerBound,attachmentTimestampUpperBound,arrivalTime,height
                         Integer.BYTES * 3 + //validity,type,snapshot
-                        371 + 55 + 4171 + // value, vectorP and rangeproof
+                        222 + 54 + 1650 + // value, vectorP and rangeproof
                         1 + //solid
                         sender.getBytes().length; //sender
         ByteBuffer buffer = ByteBuffer.allocate(allocateSize);
         buffer.put(address.bytes());
-        byte[] tempByte = new byte[55];
-        Converter.bytes(Converter.allocatingTritsFromTrytes(vectorP.initialValue), tempByte);
-        buffer.put(tempByte);
-        tempByte = new byte[371];
-        Converter.bytes(Converter.allocatingTritsFromTrytes(value), tempByte);
-        buffer.put(tempByte);
-        tempByte = new byte[4171];
-        Converter.bytes(Converter.allocatingTritsFromTrytes(rangeProof), tempByte);
-        
-        buffer.put(tempByte);
         buffer.put(bundle.bytes());
         buffer.put(trunk.bytes());
         buffer.put(branch.bytes());
         buffer.put(obsoleteTag.bytes());
+        byte[] tempByte = Converter.allocateBytesForTrits(TransactionViewModel.VECTORP_TRINARY_SIZE);
+        Converter.bytes(Converter.allocatingTritsFromTrytes(vectorP.initialValue), tempByte);
+        buffer.put(tempByte);
+        tempByte = Converter.allocateBytesForTrits(TransactionViewModel.VALUE_TRINARY_SIZE);
+        Converter.bytes(Converter.allocatingTritsFromTrytes(value), tempByte);
+        buffer.put(tempByte);
+        tempByte = Converter.allocateBytesForTrits(TransactionViewModel.RANGEPROOF_TRINARY_SIZE);
+        Converter.bytes(Converter.allocatingTritsFromTrytes(rangeProof), tempByte);
+
+        buffer.put(tempByte);
         buffer.put(Serializer.serialize(currentIndex));
         buffer.put(Serializer.serialize(lastIndex));
         buffer.put(Serializer.serialize(timestamp));
@@ -116,20 +116,6 @@ public class Transaction implements Persistable {
         if(bytes != null) {
             address = new Hash(bytes, i, Hash.SIZE_IN_BYTES);
             i += Hash.SIZE_IN_BYTES;
-            vectorP = new Commitment(bytes, i, 55);
-            i += 55;
-            byte[] blindByte = new byte[371];
-            System.arraycopy(bytes, i, blindByte, 0, 371);
-            int[] trits = new int[TransactionViewModel.VALUE_TRINARY_SIZE];
-            Converter.getTrits(blindByte, trits);
-            value = Converter.trytes(trits);
-            i += 371;
-            byte[] rangeByte = new byte[4171];
-            System.arraycopy(bytes, i, rangeByte, 0, 4171);
-            trits = new int[TransactionViewModel.RANGEPROOF_TRINARY_SIZE];
-            Converter.getTrits(rangeByte, trits);
-            rangeProof = Converter.trytes(trits);
-            i += 4171;
             bundle = new Hash(bytes, i, Hash.SIZE_IN_BYTES);
             i += Hash.SIZE_IN_BYTES;
             trunk = new Hash(bytes, i, Hash.SIZE_IN_BYTES);
@@ -138,6 +124,20 @@ public class Transaction implements Persistable {
             i += Hash.SIZE_IN_BYTES;
             obsoleteTag = new Hash(bytes, i, Hash.SIZE_IN_BYTES);
             i += Hash.SIZE_IN_BYTES;
+            vectorP = new Commitment(bytes, i, 54);
+            i += 54;
+            byte[] blindByte = Converter.allocateBytesForTrits(TransactionViewModel.VALUE_TRINARY_SIZE);
+            System.arraycopy(bytes, i, blindByte, 0, 222);
+            int[] trits = new int[TransactionViewModel.VALUE_TRINARY_SIZE];
+            Converter.getTrits(blindByte, trits);
+            value = Converter.trytes(trits);
+            i += 222;
+            byte[] rangeByte = Converter.allocateBytesForTrits(TransactionViewModel.RANGEPROOF_TRINARY_SIZE);
+            System.arraycopy(bytes, i, rangeByte, 0, 1650);
+            trits = new int[TransactionViewModel.RANGEPROOF_TRINARY_SIZE];
+            Converter.getTrits(rangeByte, trits);
+            rangeProof = Converter.trytes(trits);
+            i += 1650;
             currentIndex = Serializer.getLong(bytes, i);
             i += Long.BYTES;
             lastIndex = Serializer.getLong(bytes, i);

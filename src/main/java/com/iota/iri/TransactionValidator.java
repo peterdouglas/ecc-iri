@@ -87,7 +87,8 @@ public class TransactionValidator {
         transactionViewModel.setMetadata();
         transactionViewModel.setAttachmentData();
         if(hasInvalidTimestamp(transactionViewModel)) {
-            throw new StaleTimestampException("Invalid transaction timestamp.");
+            System.out.println("invalid time stamp");
+            //throw new StaleTimestampException("Invalid transaction timestamp.");
         }
         /*for (int i = VECTORP_TRINARY_OFFSET + VALUE_USABLE_TRINARY_SIZE; i < VECTORP_TRINARY_OFFSET + VECTORP_TRINARY_SIZE; i++) {
             if (transactionViewModel.trits()[i] != 0) {
@@ -248,7 +249,6 @@ public class TransactionValidator {
                 solid = false;
             }
             if(solid) {
-                System.out.println("Quick set solid");
                 transactionViewModel.updateSolid(true);
                 transactionViewModel.updateHeights(tangle);
                 return true;

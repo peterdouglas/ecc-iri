@@ -268,8 +268,6 @@ public class LedgerValidator {
         Set<Hash> visitedHashes = new HashSet<>(approvedHashes);
         Map<Hash, String> currentState = getLatestDiff(visitedHashes, tip, milestone.latestSnapshot.index(), false);
         if (currentState == null) return false;
-        System.out.println(Arrays.asList(currentState));
-        System.out.println(Arrays.asList(diff));
         boolean isConsistent = Snapshot.isConsistent(milestone.latestSnapshot.patchedDiff(currentState));
         if (isConsistent) {
             currentState.forEach((key, value) -> diff.put(key, value));
