@@ -849,7 +849,7 @@ public class API {
         final List<Hash> addresses = addrss.stream().map(address -> (new Hash(address)))
                 .collect(Collectors.toCollection(LinkedList::new));
         final List<Hash> hashes;
-        final Map<Hash, List<String>> balances = new HashMap<>();
+        final Map<Hash, String> balances = new HashMap<>();
         instance.milestone.latestSnapshot.rwlock.readLock().lock();
         final int index = instance.milestone.latestSnapshot.index();
         if (tips == null || tips.size() == 0) {
@@ -861,15 +861,8 @@ public class API {
         try {
             for (final Hash address : addresses) {
                 String value = instance.milestone.latestSnapshot.getBalance(address);
-                if (value == null) value = "0";
-                List<String> valueList = balances.get(address);
-                if (valueList == null) {
-                    valueList = new ArrayList<>();
-                    valueList.add(value);
-                    balances.put(address, valueList);
-                } else {
-                    balances.get(address).add(value);
-                }
+                if (value == null) value = "0";;
+                balances.put(address, value);
             }
 
             final Set<Hash> visitedHashes;
@@ -885,15 +878,12 @@ public class API {
                     return ErrorResponse.create("Tips are not consistent");
                 }
             }
-            diff.forEach((key, value) -> balances.computeIfPresent(key, (hash, aLong) -> {
-                aLong.add(value);
-                return aLong;
-            }));
+            diff.forEach((key, value) -> balances.put(key, value));
         } finally {
             instance.milestone.latestSnapshot.rwlock.readLock().unlock();
         }
 
-        final List<String> elements = addresses.stream().map(address -> balances.get(address).toString())
+        final List<String> elements = addresses.stream().map(address -> balances.get(address))
                 .collect(Collectors.toCollection(LinkedList::new));
 
         return GetBalancesResponse.create(elements, hashes.stream().map(h -> h.toString()).collect(Collectors.toList()), index);

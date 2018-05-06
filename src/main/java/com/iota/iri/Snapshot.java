@@ -96,7 +96,7 @@ public class Snapshot {
         Map<Hash, String> patch;
         rwlock.readLock().lock();
         patch = diff.entrySet().stream().map(hashLongEntry ->
-            new HashMap.SimpleEntry<>(hashLongEntry.getKey(), state.getOrDefault(hashLongEntry.getKey(), "0") + hashLongEntry.getValue())
+            new HashMap.SimpleEntry<>(hashLongEntry.getKey(), hashLongEntry.getValue())
         ).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         rwlock.readLock().unlock();
         return patch;
@@ -108,9 +108,9 @@ public class Snapshot {
         }*/
         rwlock.writeLock().lock();
         patch.entrySet().stream().forEach(hashLongEntry -> {
-            if (state.computeIfPresent(hashLongEntry.getKey(), (hash, aLong) -> hashLongEntry.getValue()) == null) {
+            //if (state.computeIfPresent(hashLongEntry.getKey(), (hash, aLong) -> hashLongEntry.getValue()) == null) {
                 state.put(hashLongEntry.getKey(), hashLongEntry.getValue());
-            }
+           // }
         });
         index = newIndex;
         rwlock.writeLock().unlock();

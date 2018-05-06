@@ -3,7 +3,6 @@ package com.iota.iri;
 import com.iota.iri.controllers.MilestoneViewModel;
 import com.iota.iri.controllers.StateDiffViewModel;
 import com.iota.iri.controllers.TransactionViewModel;
-import com.iota.iri.model.Commitment;
 import com.iota.iri.model.Hash;
 import com.iota.iri.network.TransactionRequester;
 import com.iota.iri.storage.Tangle;
@@ -104,10 +103,8 @@ public class LedgerValidator {
 
                                             final Hash address = bundleTransactionViewModel.getAddressHash();
                                             final String value = state.get(address);
-                                            if (!bundleTransactionViewModel.value().equals(value) && !bundleTransactionViewModel.value().startsWith("999999999")) {
+                                            if (!bundleTransactionViewModel.value().equals(value)) {
                                                 state.put(address, bundleTransactionViewModel.value());
-                                            } else if (bundleTransactionViewModel.value().startsWith("999999999")) {
-                                                state.put(address, "0");
                                             }
                                         }
                                     }
@@ -275,13 +272,7 @@ public class LedgerValidator {
         System.out.println(Arrays.asList(diff));
         boolean isConsistent = Snapshot.isConsistent(milestone.latestSnapshot.patchedDiff(currentState));
         if (isConsistent) {
-            currentState.forEach((key, value) -> {
-                if (diff.containsKey(key)) {
-                    diff.replace(key, value);
-                } else {
-                    diff.put(key, value);
-                }
-            });
+            currentState.forEach((key, value) -> diff.put(key, value));
             approvedHashes.addAll(visitedHashes);
         }
         return isConsistent;
